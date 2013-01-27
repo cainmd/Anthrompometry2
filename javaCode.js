@@ -1058,7 +1058,7 @@ var defineAgeParams = function (detAge) {
             break;
 
         case "Body Length":
-        alert ("here")
+        
             useDet = 2;
             detEntry = parseInt(CH.value);
             break;
@@ -1447,7 +1447,7 @@ function convertTable(){
     else {
     
         for (var i = 0; i < labels.length; i++) {
-            alert (labels[i])
+            
             if (labels[i] != "Head Circumference (cm)" && labels[i] != "Body Weight (g)" && labels[i] != "Crown Heel Length (cm)") {
                 if (age.value == lvAge && GAA != 99) {
 
