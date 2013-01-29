@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
  <script type="text/javascript">
       google.load('visualization', '1', {packages: ['table']});
@@ -16,6 +16,7 @@
 
     <body>
         <!--<div class="container">-->
+
  <div style="background-image: url(border.jpg); height: 100px" >
  <h1>
     Gestational Age Anthropometry
@@ -30,8 +31,24 @@
 <div class="control-group">
 </div>
 
+<div id="loginArea">
+<!--<button type="button" id="login" >Login</button>-->
+    <div id="removeLogin">
+    <button id="loginButton">Login</button> <br>
+    <a href="login.html" id="createLogin">Create an account.</a><br>
+        </div>
+    <div id="hiddenLogin" style="display: none ">
+        <form id="loginForm" >
+        UserId: <input type="text" id="userName" value=""> <br>
+        Password: <input type="password" id="password" value=""><br>
+        <button id="submitLogin">Login</button> 
+            <button id="exitLogin">Exit</button>
+        </form>
+        
+    </div>
+</div>
             
-<table id= "formTable">
+<table id= "formTable" style="width: 80%">
 <tr>
     
     <td valign="top">
@@ -206,11 +223,11 @@ Adrenals Weight (g): <input type="number" name="Adrenals Weight" id="AW" value="
             <h4>Storing Data</h4>
             <div>
                 <ol>
-                <li>Select the box in the top left for live birth.</li>
-                <li>Enter values for either birth in weeks or age in months.</li>
-                <li>Enter available data for case infant.</li>
-                <li>Select option for determining best fit (drop down box in middle).</li>
-                <li>Click "Submit"</li>
+                <li>If you have an account, choose login. Otherwise, create an account.</li>
+                <li>After logging in, enter your data and click submit.</li>
+                <li>Once this action completes, you can choose to save your work to our database by clicking the save button.</li>
+                <li>A popup will be generated when the work has been saved.</li>
+                <li>Access data section will be completed later.</li>
                 </ol>
             </div>
             
@@ -227,6 +244,7 @@ Adrenals Weight (g): <input type="number" name="Adrenals Weight" id="AW" value="
 </table>
  <br></br>
  <input type="button" value="Submit" id ="submit" >
+        <input type="button" value="TestDB" id ="testDB" >
 <div id="legend">Key:</div>
 <div id= "yellowborder">Value outside normal range expected</div>
 <div id ="separator">    /    </div>
@@ -241,7 +259,9 @@ Adrenals Weight (g): <input type="number" name="Adrenals Weight" id="AW" value="
 <link rel='stylesheet' type='text/css' href='http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css'/>
           
 <!--<link rel='stylesheet' type="text/css" href="jquery-1.10.0.custom.css">-->
+
 <script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="s3db-connectivity.js"></script>
 <script type="text/javascript" src="javaCode.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
 
