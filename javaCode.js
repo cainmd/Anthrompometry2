@@ -14,6 +14,8 @@ if (window.hasOwnProperty('jQuery') === false) {
     
 var $ = window.jQuery;
 
+var s3dbURL = "https://uab.s3db.org/s3db/";
+var key = "hJLi8Bs3TXAOtbs";
 //used to determine values in maceration columns
 var step;
 var liveBorn = false;
@@ -55,8 +57,8 @@ var currentRange;
 var temp = 43;
 
 var submit = document.getElementById("submit");
-
-
+var testDB = document.getElementById("testDB");
+var loginButton = document.getElementById("loginButton")
 
 var lvBirth = document.getElementById("livebirth");
 //add GA to document
@@ -541,6 +543,8 @@ lvBirth.onclick = function () {
 };
 
 submit.onclick = function(){resetUse ()};
+testDB.onclick = function () { testmyDB() };
+loginButton.onclick = function () { loadLoginForm() };
 //resetUse()
 
 //var y=document.getElementById("maceration").options;
@@ -607,7 +611,7 @@ var useLive = function (valAge, time) {
     //liveBirth table
     var jumper = 0;
     if (time == 0) {
-        
+
         expectedRange = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]];
         for (k = 7; k <= 14; k++) {
@@ -642,6 +646,7 @@ var useLive = function (valAge, time) {
                     rangeMeas = [CDCMWT[ageM][0], CDCMWT["M" + lvAge][2]];
                     break;
                 case "Head Circumference":
+                alert (lvAge + " " + CDCMHC["M" + lvAge][2])
                     rangeMeas = [CDCMHC["M" + lvAge][0], CDCMHC["M" + lvAge][2]];
                     break;
             };
@@ -662,22 +667,55 @@ var useLive = function (valAge, time) {
         }
     }
     else {
-
-
-        switch (detAge) {
-            case "Body Length":
-                rangeMeas = [preemieLength["M" + temp][0], preemieLength["M" + temp][2]];
-                break;
-            case "Body Weight":
-                rangeMeas = [preemieWT["M" + temp][0], preemieWT["M" + temp][2]];
-                break;
-            case "Head Circumference":
-                rangeMeas = [preemieHC["M" + temp][0], preemieHC["M" + temp][2]];
-                break;
+       
+        if (temp <= 48) {
+            
+            switch (detAge) {
+                case "Body Length":
+                    rangeMeas = [preemieLength["M" + temp][0], preemieLength["M" + temp][2]];
+                    break;
+                case "Body Weight":
+                    rangeMeas = [preemieWT["M" + temp][0], preemieWT["M" + temp][2]];
+                    break;
+                case "Head Circumference":
+                    rangeMeas = [preemieHC["M" + temp][0], preemieHC["M" + temp][2]];
+                    break;
+            };
+        }
+        else {
+            if (gender == "male") {
+                
+                switch (detAge) {
+                    case "Body Length":
+                        rangeMeas = [CDCML[ageM][0], CDCML["M" + lvAge][2]];
+                        break;
+                    case "Body Weight":
+                        rangeMeas = [CDCMWT[ageM][0], CDCMWT["M" + lvAge][2]];
+                        break;
+                    case "Head Circumference":
+                   
+                        rangeMeas = [CDCMHC["M" + lvAge][0], CDCMHC["M" + lvAge][2]];
+                        break;
+                };
+            }
+            else {
+                switch (detAge) {
+                    case "Body Length":
+                        rangeMeas = [CDCFL["M" + lvAge][0], CDCFL["M" + lvAge][2]];
+                        break;
+                    case "Body Weight":
+                        rangeMeas = [CDCFWT["M" + lvAge][0], CDCFWT["M" + lvAge][2]];
+                        break;
+                    case "Head Circumference":
+                        rangeMeas = [CDCFHC["M" + lvAge][0], CDCFHC["M" + lvAge][2]];
+                        break;
+                };
+            }
         };
     };
 
     if (detAge != "None") {
+       
         detInRange(rangeMeas, ageM, ageSD);
     }
 }
@@ -713,10 +751,10 @@ var calcTwoSD = function (myMean, mySD, index, tableID) {
 
 var detInRange = function (rangeMeas, myMean, mySD) {
     //I WILL catch stuff >43....
-
+      
     //choose either FL or body weight with an additional variable...
     //will add each time to GA until found, call useGA each time.
-   
+
     //anonymous function? vs passing parameters
     //attempted to keep within 12 - 43
 
@@ -724,20 +762,17 @@ var detInRange = function (rangeMeas, myMean, mySD) {
 
     //get a failsafe for footlength >43
 
-
-    //(GAA <= 43 && detAge == "Foot Length")
-
     //AB.value < 37
-    if (liveBorn == false || AB.value <=43 && GAA < 99) {
-      
+    if (liveBorn == false || AB.value <= 43 && GAA < 99) {
+       
         if (detEntry > rangeMeas[1] && GAA < 43) {
-            
+
             GAA++;
 
             useGA(GAA);
         }
         else if (detEntry < rangeMeas[0] && GAA > 12) {
-           
+
             GAA--;
             useGA(GAA);
         }
@@ -754,14 +789,18 @@ var detInRange = function (rangeMeas, myMean, mySD) {
                 temp++;
                 //so it goes to next section
                 GAA = 99;
-                useLive(lvAge,1);
+                useLive(lvAge, 1);
             }
 
             else if (liveBorn == false && detEntry > rangeMeas[1] && GAA >= 43) {
                 stop();
             }
+
+
             //had else corrected Range here
-            else { correctedRange = [dataTable[myMean], dataTable[mySD]]; }
+            else { 
+           
+            correctedRange = [dataTable[myMean], dataTable[mySD]]; }
             //need to make between 12 and 43
 
             //generate_report();
@@ -770,6 +809,7 @@ var detInRange = function (rangeMeas, myMean, mySD) {
     }
 
     else if (GAA >= 99) {
+        
         //for LIVE infants
         var jumper = 0;
         //stop();
@@ -781,26 +821,39 @@ var detInRange = function (rangeMeas, myMean, mySD) {
             //will need to create the dreaded temp variable... to be deleted in later programming
             if (GAA == 99 && temp < 48) {
                 temp++;
-                useLive(lvAge,1);
+                useLive(lvAge, 1);
             }
             else {
+               
+                temp = 999;
                 lvAge++;
-                useLive(lvAge,1);
+                useLive(lvAge, 1);
             }
         }
         else if (detEntry < rangeMeas[0]) {
-            lvAge--;
-            useLive(lvAge,1);
-            //GAA--;
-            //useGA(GAA);
+            if (lvAge > 1) {
+                lvAge--;
+                useLive(lvAge, 1);
+                //GAA--;
+                //useGA(GAA);
+            }
+            else {
+                //will need to roll to useGA
+                alert("This infant has a size smaller than most live borns");
+                stop();
+            }
         }
+
+
         else {
+          
             /*
             for (i = 0; i <= 14; i++) {
             correctedRange[0][i] = NaN;
             correctedRange[1][i] = NaN;
             };
             */
+             
             correctedRange = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]];
 
@@ -821,10 +874,10 @@ var detInRange = function (rangeMeas, myMean, mySD) {
             // correctedRange = [liveBirth[myMean], liveBirth[mySD]];
             //generate_report();
         }
-
+       
     };
 
-
+    
 
     //iterations = iterations + 1;
 
@@ -933,7 +986,7 @@ var resetUse = function () {
 
                 }
                 else {
-                    
+
                     //if > 43... convert to months
                     switch (true) {
                         case (GA.value >= 44) && (GA.value <= 47):
@@ -977,10 +1030,16 @@ var resetUse = function () {
                             break;
                     }
                     alert("The corrected gestational age fits better in the Schulz table and this number will be converted to: " + age.value + " months.")
-                    GAA == 100;
-                    lvAge = age.value;
-                    useLive(lvAge, 0);
-                    pullPercentiles(1, age.value, lvAge);
+                    //GAA == 100;
+
+                    //GA.value = "";
+                    AB.value = "";
+                    WA.value = "";
+                    //lvAge = age.value;
+                    resetUse();
+                    //useLive(lvAge, 0);
+                    //alert (lvAge + " " + age.value)
+                    //pullPercentiles(1, age.value, lvAge);
                 };
 
             }
@@ -1058,7 +1117,7 @@ var defineAgeParams = function (detAge) {
             break;
 
         case "Body Length":
-        
+       
             useDet = 2;
             detEntry = parseInt(CH.value);
             break;
@@ -1247,50 +1306,55 @@ var defineAgeParams = function (detAge) {
      }
 
  }
-     var trimmer = function (longArray) {
-         var maceration = mac.options[mac.selectedIndex].value;
-         
-         if (liveBorn == true) {
-             maceration = "None to mild";
-         }
+ var trimmer = function (longArray) {
+     var maceration = mac.options[mac.selectedIndex].value;
 
-         var count = 0;
-         var trimmedReturn = [];
-         var step = 1;
-         for (var i = 0; i < longArray.length; i += step) {
-             //after >=7
-             if (i < 7) {
+     if (liveBorn == true) {
+         maceration = "None to mild";
+     }
+
+     var count = 0;
+     var trimmedReturn = [];
+     var step = 1;
+     for (var i = 0; i < longArray.length; i += step) {
+         
+         //after >=7
+         if (i < 7) {
+             trimmedReturn[count] = longArray[i];
+
+         }
+         else if (i == 7) {
+             step = 3
+
+             if (maceration === "None to mild") {
                  trimmedReturn[count] = longArray[i];
 
              }
-             else if (i == 7) {
-                 step = 3
+             else if (maceration == "Moderate") {
+                 i = i + 1;
 
-                 if (maceration === "None to mild") {
-                     trimmedReturn[count] = longArray[i];
-                    
-                 }
-                 else if (maceration == "Moderate") {
-                     i = i + 1;
-
-                     trimmedReturn[count] = longArray[i];
-                 }
-                 else {
-                     i = i + 2;
-                     trimmedReturn[count] = longArray[i];
-                 }
+                 trimmedReturn[count] = longArray[i];
              }
              else {
-
-
+                 i = i + 2;
                  trimmedReturn[count] = longArray[i];
-
              }
-             count++;
          }
-         return trimmedReturn;
+         else {
 
+
+             trimmedReturn[count] = longArray[i];
+
+         }
+
+         //if (trimmedReturn[i] == 0) {
+           //  trimmedReturn[i] = NaN;
+         //}
+         count++;
      }
+     return trimmedReturn;
+
+ }
 
 
 
@@ -1447,7 +1511,7 @@ function convertTable(){
     else {
     
         for (var i = 0; i < labels.length; i++) {
-            
+            //alert (labels[i])
             if (labels[i] != "Head Circumference (cm)" && labels[i] != "Body Weight (g)" && labels[i] != "Crown Heel Length (cm)") {
                 if (age.value == lvAge && GAA != 99) {
 
@@ -1510,15 +1574,13 @@ function pullPercentiles(tableID, origAge, newAge) {
     //will need to insert each value for each table
     //creat array with 5th and 95th
     var oM = "M" + origAge;
-    if (GAA == 99) {
+    var nM;
+    if (GAA == 99 && temp <999) {
         //will add a special note page on the side...
         newAge = temp;
     }
-    var nM = "M" + newAge;
-    // mini = dataTable[myMean][index] - dataTable[mySD][index] * 2;
-    switch (tableID) {
-        //preemies will need for expected and outside range 
-        case 0:
+    else if (temp == 999 && GAA <= 99) {
+            nM ="M" + newAge;
             expectedRange[0][2] = preemieLength[oM][1];
             expectedRange[0][3] = preemieHC[oM][1];
             expectedRange[0][6] = preemieWT[oM][1];
@@ -1528,43 +1590,7 @@ function pullPercentiles(tableID, origAge, newAge) {
             highpercentiles[0] = preemieLength[oM][2];
             highpercentiles[1] = preemieHC[oM][2];
             highpercentiles[2] = preemieWT[oM][2];
-
-            //need to make sure <50!
-            if (origAge != newAge && detAge!= "None") {
-               
-                correctedRange[0][2] = preemieLength[nM][1];
-                correctedRange[0][3] = preemieHC[nM][1];
-                correctedRange[0][6] = preemieWT[nM][1];
-
-
-
-                clowPercentiles[0] = preemieLength[nM][0];
-                clowPercentiles[1] = preemieHC[nM][0];
-                clowPercentiles[2] = preemieWT[nM][0];
-                chighPercentiles[0] = preemieLength[nM][2];
-                chighPercentiles[1] = preemieHC[nM][2];
-                chighPercentiles[2] = preemieWT[nM][2];
-            }
-
-            break;
-
-        //CDC -split into each part
-        case 1:
-            if (gender == 'male') {
-                expectedRange[0][2] = CDCML[oM][1];
-                expectedRange[0][3] = CDCMHC[oM][1];
-                expectedRange[0][6] = CDCMWT[oM][1];
-                expectedRange[0][4] = liveMale[oM][0];
-                expectedRange[0][5] = liveMale[oM][1];
-
-                lowPercentiles[0] = CDCML[oM][0];
-                lowPercentiles[1] = CDCMHC[oM][0];
-                lowPercentiles[2] = CDCMWT[oM][0];
-                highpercentiles[0] = CDCML[oM][2];
-                highpercentiles[1] = CDCMHC[oM][2];
-                highpercentiles[2] = CDCMWT[oM][2];
-
-                if (origAge != newAge && detAge != "None") {
+                if (gender == "male"){
                     correctedRange[0][2] = CDCML[nM][1];
                     correctedRange[0][3] = CDCMHC[nM][1];
                     correctedRange[0][6] = CDCMWT[nM][1];
@@ -1579,26 +1605,9 @@ function pullPercentiles(tableID, origAge, newAge) {
                     chighPercentiles[1] = CDCMHC[nM][2];
                     chighPercentiles[2] = CDCMWT[nM][2];
 
-
-                };
-
-            }
-            else {
-                expectedRange[0][2] = CDCFL[oM][1];
-                expectedRange[0][3] = CDCFHC[oM][1];
-                expectedRange[0][6] = CDCFWT[oM][1];
-                expectedRange[0][4] = liveFemale[oM][0];
-                expectedRange[0][5] = liveFemale[oM][1];
-
-                //4 cc 5 ac
-                lowPercentiles[0] = CDCFL[oM][0];
-                lowPercentiles[1] = CDCFHC[oM][0];
-                lowPercentiles[2] = CDCFWT[oM][0];
-                highpercentiles[0] = CDCFL[oM][2];
-                highpercentiles[1] = CDCFHC[oM][2];
-                highpercentiles[2] = CDCFWT[oM][2];
-
-                if (origAge != newAge && detAge != "None") {
+                }
+                else {
+                    
                     correctedRange[0][2] = CDCFL[nM][1];
                     correctedRange[0][3] = CDCFHC[nM][1];
                     correctedRange[0][6] = CDCFWT[nM][1];
@@ -1611,12 +1620,172 @@ function pullPercentiles(tableID, origAge, newAge) {
                     chighPercentiles[0] = CDCFL[nM][2];
                     chighPercentiles[1] = CDCFHC[nM][2];
                     chighPercentiles[2] = CDCFWT[nM][2];
+
                 }
 
+    }
+    else {
+        nM = "M" + newAge;
+        // mini = dataTable[myMean][index] - dataTable[mySD][index] * 2;
+        switch (tableID) {
+            //preemies will need for expected and outside range  
+            case 0:
+                expectedRange[0][2] = preemieLength[oM][1];
+                expectedRange[0][3] = preemieHC[oM][1];
+                expectedRange[0][6] = preemieWT[oM][1];
+                lowPercentiles[0] = preemieLength[oM][0];
+                lowPercentiles[1] = preemieHC[oM][0];
+                lowPercentiles[2] = preemieWT[oM][0];
+                highpercentiles[0] = preemieLength[oM][2];
+                highpercentiles[1] = preemieHC[oM][2];
+                highpercentiles[2] = preemieWT[oM][2];
+
+                //need to make sure <50!
+                if (origAge != newAge && detAge != "None") {
+
+                    correctedRange[0][2] = preemieLength[nM][1];
+                    correctedRange[0][3] = preemieHC[nM][1];
+                    correctedRange[0][6] = preemieWT[nM][1];
 
 
 
-            }
-            break;
+                    clowPercentiles[0] = preemieLength[nM][0];
+                    clowPercentiles[1] = preemieHC[nM][0];
+                    clowPercentiles[2] = preemieWT[nM][0];
+                    chighPercentiles[0] = preemieLength[nM][2];
+                    chighPercentiles[1] = preemieHC[nM][2];
+                    chighPercentiles[2] = preemieWT[nM][2];
+                }
+
+                break;
+
+            //CDC -split into each part 
+            case 1:
+                if (gender == 'male') {
+                    expectedRange[0][2] = CDCML[oM][1];
+                    expectedRange[0][3] = CDCMHC[oM][1];
+                    expectedRange[0][6] = CDCMWT[oM][1];
+                    expectedRange[0][4] = liveMale[oM][0];
+                    expectedRange[0][5] = liveMale[oM][1];
+
+                    lowPercentiles[0] = CDCML[oM][0];
+                    lowPercentiles[1] = CDCMHC[oM][0];
+                    lowPercentiles[2] = CDCMWT[oM][0];
+                    highpercentiles[0] = CDCML[oM][2];
+                    highpercentiles[1] = CDCMHC[oM][2];
+                    highpercentiles[2] = CDCMWT[oM][2];
+
+                    if (origAge != newAge && detAge != "None") {
+                        correctedRange[0][2] = CDCML[nM][1];
+                        correctedRange[0][3] = CDCMHC[nM][1];
+                        correctedRange[0][6] = CDCMWT[nM][1];
+                        correctedRange[0][4] = liveMale[nM][0];
+                        correctedRange[0][5] = liveMale[nM][1];
+
+
+                        clowPercentiles[0] = CDCML[nM][0];
+                        clowPercentiles[1] = CDCMHC[nM][0];
+                        clowPercentiles[2] = CDCMWT[nM][0];
+                        chighPercentiles[0] = CDCML[nM][2];
+                        chighPercentiles[1] = CDCMHC[nM][2];
+                        chighPercentiles[2] = CDCMWT[nM][2];
+
+
+                    };
+
+                }
+                else {
+                    expectedRange[0][2] = CDCFL[oM][1];
+                    expectedRange[0][3] = CDCFHC[oM][1];
+                    expectedRange[0][6] = CDCFWT[oM][1];
+                    expectedRange[0][4] = liveFemale[oM][0];
+                    expectedRange[0][5] = liveFemale[oM][1];
+
+                    //4 cc 5 ac
+                    lowPercentiles[0] = CDCFL[oM][0];
+                    lowPercentiles[1] = CDCFHC[oM][0];
+                    lowPercentiles[2] = CDCFWT[oM][0];
+                    highpercentiles[0] = CDCFL[oM][2];
+                    highpercentiles[1] = CDCFHC[oM][2];
+                    highpercentiles[2] = CDCFWT[oM][2];
+
+                    if (origAge != newAge && detAge != "None") {
+                        correctedRange[0][2] = CDCFL[nM][1];
+                        correctedRange[0][3] = CDCFHC[nM][1];
+                        correctedRange[0][6] = CDCFWT[nM][1];
+                        correctedRange[0][4] = liveFemale[nM][0];
+                        correctedRange[0][5] = liveFemale[nM][1];
+
+                        clowPercentiles[0] = CDCFL[nM][0];
+                        clowPercentiles[1] = CDCFHC[nM][0];
+                        clowPercentiles[2] = CDCFWT[nM][0];
+                        chighPercentiles[0] = CDCFL[nM][2];
+                        chighPercentiles[1] = CDCFHC[nM][2];
+                        chighPercentiles[2] = CDCFWT[nM][2];
+                    }
+
+
+
+
+                }
+                break;
+        }
     }
 }
+
+var id = [];
+s3dbc.setKey(key);
+s3dbc.setDeployment(s3dbURL);
+
+function testmyDB(){
+    //var d = new Date();
+    //d.getDate + " " + d.getHours
+        s3dbc.insertItem(3091, "test" , (function (err, id) {
+       //will just create a statement for all my data (actualrange)
+       console.log(id)
+       alert (gender + " " + race)
+        //console.log(err, id);
+        //console.log(actualRange);
+        s3dbc.insertStatement(id[0].item_id, 3162, gender, (function (err) {
+            s3dbc.insertStatement(id[0].item_id, 3197, race, (function (err) {
+                s3dbc.insertStatement(id[0].item_id, 3189, actualRange, (function (err) {
+                alert ("finished adding")
+
+                 }));
+
+            }));
+        }));
+
+    }));
+
+};
+/*
+var login=function(username,password,callback){
+    s3dbc.setDeployment(s3dbURL);
+    s3dbc.setJSONP(false);
+    s3dbc.login(username, password, function (err, key) {
+         callback;
+    });
+};
+
+
+var displayFileInfoByCollectionAndRule=function(collectionID,ruleID){
+      // display file name, file size and url of selected file
+     s3dbc.selectItemsByCollection(collectionID, function(err,results){
+          console.log(err);
+          console.log(results);
+          var itemsId=[];
+          for(var i=0;i<results.length;i++){
+              itemsId[i]=results[i].item_id;
+          }
+          
+     });
+
+ };
+ */
+ function loadLoginForm(){
+     $('#removeLogin').fadeOut('fast');
+     document.getElementById('loginArea').style.top = '2%';
+     $('#hiddenLogin').fadeTo('slow', 1);
+     
+ }
