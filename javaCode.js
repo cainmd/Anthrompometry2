@@ -1194,7 +1194,8 @@ var defineAgeParams = function (detAge) {
      //   return;
      //}
      generate_expected();
-     if (detAge != "None" && (GAA != GA.value || age.value != lvAge) ) {
+     if (detAge != "None" && (GAA != GA.value && age.value != lvAge) ) {
+       // alert (age.value +" " + lvAge)
          generate_corrected();
          document.getElementById('report-output').style.height = "400px";
      }
@@ -1384,6 +1385,7 @@ var data = new google.visualization.DataTable();
 data.addColumn('string','Measurements')
 var myLabels = []
 if (GAA < 99){
+    alert ("labels")
 myLabels = ['Actual values', 'Expected Means' + " " + GA.value + " weeks", 'SD', 'Min', 'Max', 'Most Compatible Means' + " " + GAA + " weeks", 'SD', 'Min', 'Max'];
 }
 else if (GAA == 99){
@@ -1397,6 +1399,8 @@ else {
 
 
 if (GAA == GA.value || age.value == lvAge || detAge == "None") {
+  
+   alert ("stpnumber")
     stopNumber = 4;
 }
 for (var i = 0; i < myLabels.length - stopNumber; i++) {
@@ -1490,6 +1494,7 @@ for (var j = 0; j < labels.length; j++) {
 
 function convertTable(){
     var convertedTable = [];
+    
     if (liveBorn == false) {
         if (GAA == GA.value) {
             for (var i = 0; i < labels.length; i++) {
@@ -1513,8 +1518,8 @@ function convertTable(){
         for (var i = 0; i < labels.length; i++) {
             //alert (labels[i])
             if (labels[i] != "Head Circumference (cm)" && labels[i] != "Body Weight (g)" && labels[i] != "Crown Heel Length (cm)") {
-                if (age.value == lvAge && GAA != 99) {
-
+                if (age.value == lvAge && GAA != 99 || (GA.value == GAA && AB.value !="") ||  detAge == "None") {
+                    
                     convertedTable[i] = [labels[i], parseFloat(actualRange[i]), parseFloat(trimmedExpected[i]), trimmedExpectedSD[i], Math.round([parseFloat(trimmedExpected[i]) - 2 * trimmedExpectedSD[i]] * 10) / 10, Math.round([parseFloat(trimmedExpected[i]) + 2 * trimmedExpectedSD[i]] * 10) / 10]
 
 
@@ -1531,7 +1536,8 @@ function convertTable(){
               
                 switch (labels[i]){
                     case "Head Circumference (cm)":
-                        if (age.value == lvAge && GAA != 99) {
+                        if ((age.value == lvAge && GAA != 99) || (GA.value == GAA && AB.value !="")||  detAge == "None") {
+                          alert ("correct table")
                             convertedTable[i] = [labels[i], parseFloat(actualRange[i]), parseFloat(trimmedExpected[i]), NaN, lowPercentiles[1], highpercentiles [1]]
                         }
                         else {
@@ -1541,7 +1547,7 @@ function convertTable(){
                         break;
 
                         case "Crown Heel Length (cm)":
-                        if (age.value == lvAge && GAA != 99) {
+                        if (age.value == lvAge && GAA != 99 || (GA.value == GAA && AB.value !="" ||  detAge == "None")) {
                             convertedTable[i] = [labels[i], parseFloat(actualRange[i]), parseFloat(trimmedExpected[i]), NaN, lowPercentiles[0], highpercentiles [0]]
                         }
                         else {
@@ -1551,7 +1557,7 @@ function convertTable(){
                         break;
 
                         case "Body Weight (g)":
-                        if (age.value == lvAge && GAA != 99) {
+                        if (age.value == lvAge && GAA != 99 || (GA.value == GAA && AB.value !="") ||  detAge == "None") {
                             convertedTable[i] = [labels[i], parseFloat(actualRange[i]), parseFloat(trimmedExpected[i]), NaN, lowPercentiles[2], highpercentiles [2]]
                         }
                         else {
